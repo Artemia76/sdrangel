@@ -153,6 +153,8 @@ void UDPSource::applySettings(const UDPSourceSettings& settings, bool force)
             << " m_amModFactor: " << settings.m_amModFactor
             << " m_udpAddressStr: " << settings.m_udpAddress
             << " m_udpPort: " << settings.m_udpPort
+            << " m_multicastAddress: " << settings.m_multicastAddress
+            << " m_multicastJoin: " << settings.m_multicastJoin
             << " m_channelMute: " << settings.m_channelMute
             << " m_gainIn: " << settings.m_gainIn
             << " m_gainOut: " << settings.m_gainOut
@@ -191,6 +193,12 @@ void UDPSource::applySettings(const UDPSourceSettings& settings, bool force)
     }
     if ((settings.m_udpPort != m_settings.m_udpPort) || force) {
         reverseAPIKeys.append("udpPort");
+    }
+    if ((settings.m_multicastAddress != m_settings.m_multicastAddress) || force) {
+        reverseAPIKeys.append("multicastAddress");
+    }
+    if ((settings.m_multicastJoin != m_settings.m_multicastJoin) || force) {
+        reverseAPIKeys.append("multicastJoin");
     }
     if ((settings.m_channelMute != m_settings.m_channelMute) || force) {
         reverseAPIKeys.append("channelMute");
@@ -370,6 +378,12 @@ void UDPSource::webapiUpdateChannelSettings(
     if (channelSettingsKeys.contains("udpPort")) {
         settings.m_udpPort = response.getUdpSourceSettings()->getUdpPort();
     }
+    if (channelSettingsKeys.contains("multicastAddress")) {
+        settings.m_multicastAddress = *response.getUdpSourceSettings()->getMulticastAddress();
+    }
+    if (channelSettingsKeys.contains("multicastJoin")) {
+        settings.m_multicastJoin = response.getUdpSourceSettings()->getMulticastJoin() != 0;
+    }
     if (channelSettingsKeys.contains("title")) {
         settings.m_title = *response.getUdpSourceSettings()->getTitle();
     }
@@ -430,6 +444,14 @@ void UDPSource::webapiFormatChannelSettings(SWGSDRangel::SWGChannelSettings& res
     }
 
     response.getUdpSourceSettings()->setUdpPort(settings.m_udpPort);
+
+    if (response.getUdpSourceSettings()->getMulticastAddress()) {
+        *response.getUdpSourceSettings()->getMulticastAddress() = settings.m_multicastAddress;
+    } else {
+        response.getUdpSourceSettings()->setMulticastAddress(new QString(settings.m_multicastAddress));
+    }
+
+    response.getUdpSourceSettings()->setMulticastJoin(settings.m_multicastJoin ? 1 : 0);
 
     if (response.getUdpSourceSettings()->getTitle()) {
         *response.getUdpSourceSettings()->getTitle() = settings.m_title;
@@ -524,6 +546,12 @@ void UDPSource::webapiReverseSendSettings(QList<QString>& channelSettingsKeys, c
     }
     if (channelSettingsKeys.contains("udpPort") || force) {
         swgUDPSourceSettings->setUdpPort(settings.m_udpPort);
+    }
+    if (channelSettingsKeys.contains("multicastAddress") || force) {
+        swgUDPSourceSettings->setMulticastAddress(new QString(settings.m_multicastAddress));
+    }
+    if (channelSettingsKeys.contains("multicastJoin") || force) {
+        swgUDPSourceSettings->setMulticastJoin(settings.m_multicastJoin ? 1 : 0);
     }
     if (channelSettingsKeys.contains("title") || force) {
         swgUDPSourceSettings->setTitle(new QString(settings.m_title));

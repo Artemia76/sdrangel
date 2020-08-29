@@ -5481,6 +5481,13 @@ margin-bottom: 20px;
     "dataPort" : {
       "type" : "integer"
     },
+    "multicastAddress" : {
+      "type" : "string"
+    },
+    "multicastJoin" : {
+      "type" : "integer",
+      "description" : "Joim multicast group * 0 - leave group * 1 - join group\n"
+    },
     "dcBlock" : {
       "type" : "integer"
     },
@@ -6914,6 +6921,13 @@ margin-bottom: 20px;
     "udpPort" : {
       "type" : "integer",
       "format" : "uint16"
+    },
+    "multicastAddress" : {
+      "type" : "string"
+    },
+    "multicastJoin" : {
+      "type" : "integer",
+      "description" : "Joim multicast group * 0 - leave group * 1 - join group\n"
     },
     "title" : {
       "type" : "string"
@@ -33305,7 +33319,7 @@ except ApiException as e:
           </div>
           <div id="generator">
             <div class="content">
-              Generated 2020-08-20T08:53:46.594+02:00
+              Generated 2020-08-27T07:43:19.609+02:00
             </div>
           </div>
       </div>

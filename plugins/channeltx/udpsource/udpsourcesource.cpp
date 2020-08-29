@@ -29,7 +29,6 @@ UDPSourceSource::UDPSourceSource() :
     m_channelFrequencyOffset(0),
     m_squelch(1e-6),
     m_spectrumSink(nullptr),
-    m_spectrumEnabled(false),
     m_spectrumChunkSize(2160),
     m_spectrumChunkCounter(0),
     m_magsq(1e-10),
@@ -238,19 +237,20 @@ void UDPSourceSource::modulateSample()
         initSquelch(false);
     }
 
-    if (m_spectrumSink && m_spectrumEnabled && (m_spectrumChunkCounter < m_spectrumChunkSize - 1))
+    if (m_spectrumSink)
     {
         Sample s;
         s.m_real = (FixReal) m_modSample.real();
         s.m_imag = (FixReal) m_modSample.imag();
         m_sampleBuffer.push_back(s);
         m_spectrumChunkCounter++;
-    }
-    else if (m_spectrumSink)
-    {
-        m_spectrumSink->feed(m_sampleBuffer.begin(), m_sampleBuffer.end(), false);
-        m_sampleBuffer.clear();
-        m_spectrumChunkCounter = 0;
+
+        if (m_spectrumChunkCounter == m_spectrumChunkSize)
+        {
+            m_spectrumSink->feed(m_sampleBuffer.begin(), m_sampleBuffer.end(), false);
+            m_sampleBuffer.clear();
+            m_spectrumChunkCounter = 0;
+        }
     }
 }
 
@@ -290,11 +290,6 @@ void UDPSourceSource::calculateLevel(Complex sample)
         m_levelSum = 0.0f;
         m_levelCalcCount = 0;
     }
-}
-
-void UDPSourceSource::setSpectrumEnabled(bool enabled)
-{
-    m_spectrumEnabled = enabled;
 }
 
 void UDPSourceSource::resetReadIndex()
@@ -338,6 +333,8 @@ void UDPSourceSource::applySettings(const UDPSourceSettings& settings, bool forc
             << " m_amModFactor: " << settings.m_amModFactor
             << " m_udpAddressStr: " << settings.m_udpAddress
             << " m_udpPort: " << settings.m_udpPort
+            << " m_multicastAddress: " << settings.m_multicastAddress
+            << " m_multicastJoin: " << settings.m_multicastJoin
             << " m_channelMute: " << settings.m_channelMute
             << " m_gainIn: " << settings.m_gainIn
             << " m_gainOut: " << settings.m_gainOut
@@ -385,9 +382,11 @@ void UDPSourceSource::applySettings(const UDPSourceSettings& settings, bool forc
     }
 
     if ((settings.m_udpAddress != m_settings.m_udpAddress) ||
-        (settings.m_udpPort != m_settings.m_udpPort) || force)
+        (settings.m_udpPort != m_settings.m_udpPort) ||
+        (settings.m_multicastAddress != m_settings.m_multicastAddress) ||
+        (settings.m_multicastJoin != m_settings.m_multicastJoin) || force)
     {
-        m_udpHandler.configureUDPLink(settings.m_udpAddress, settings.m_udpPort);
+        m_udpHandler.configureUDPLink(settings.m_udpAddress, settings.m_udpPort, settings.m_multicastAddress, settings.m_multicastJoin);
     }
 
     if ((settings.m_channelMute != m_settings.m_channelMute) || force)
