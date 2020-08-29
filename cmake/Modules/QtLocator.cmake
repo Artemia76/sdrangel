@@ -23,7 +23,9 @@ IF(MSVC)
     # - cmake uses (e.g.) "1800"
     # - see also https://cmake.org/cmake/help/v3.0/variable/MSVC_VERSION.html
     # checkcompiler version
-    if(MSVC_VERSION GREATER 1910 AND MSVC_VERSION LESS 1919)
+	if(MSVC_VERSION GREATER 1919)
+		set(QT_MSVC 2019)
+    elseif(MSVC_VERSION GREATER 1910 AND MSVC_VERSION LESS 1919)
         set(QT_MSVC 2017)
     elseif(MSVC_VERSION GREATER 1899 AND MSVC_VERSION LESS 1910)
         set(QT_MSVC 2015)

@@ -191,13 +191,15 @@ elseif(APPLE)
     "${CMAKE_BINARY_DIR}/Info.plist" @ONLY)
 elseif (WIN32)
   # check compiler version
-  if(MSVC_VERSION GREATER 1910 AND MSVC_VERSION LESS 1919)
+  if(MSVC_VERSION GREATER 1919)
+    set(VS2019 ON)
+  elseif(MSVC_VERSION GREATER 1910 AND MSVC_VERSION LESS 1919)
     set(VS2017 ON)
   elseif(MSVC_VERSION GREATER 1899 AND MSVC_VERSION LESS 1910)
     set(VS2015 ON)
   endif()
 
-  if(NOT VS2015 AND NOT VS2017)
+  if(NOT VS2015 AND NOT VS2017 AND NOT VS2019)
     message(FATAL_ERROR "You must use Microsoft Visual Studio 2015 or 2017 as compiler")
   endif()
 
